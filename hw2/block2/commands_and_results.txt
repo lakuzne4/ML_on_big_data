@@ -1,0 +1,145 @@
+query:
+    / * Исполнитель с максимальным числом скробблов */
+    SELECT 
+        artist_lastfm, cnt_scrobbles
+    FROM
+    (
+    SELECT artist_lastfm, 
+
+            SUM(scrobbles_lastfm) AS cnt_scrobbles
+
+    FROM default.hue__tmp_artists 
+    GROUP BY
+        artist_lastfm
+    ) tabled
+    ORDER BY 
+        cnt_scrobbles DESC
+    LIMIT 1
+result:
+    Phoenix	1099743582
+    
+query:
+    /* Самый популярный тэг на ластфм */
+    SELECT 
+        tags_, 
+        SUM(listeners_lastfm) AS cnt_listeners
+    FROM
+        (
+        SELECT 
+             
+            table_1.listeners_lastfm,
+            tags_
+        FROM 
+            (SELECT 
+                split(tags_lastfm, "; ") AS tags_lastfm
+                ,
+                listeners_lastfm    
+             FROM default.hue__tmp_artists
+            ) table_1
+        LATERAL VIEW 
+            explode(tags_lastfm) exploded_table AS tags_
+        ) tabled
+    GROUP BY
+        tags_
+    ORDER BY 
+        cnt_listeners DESC
+    LIMIT 1
+result:
+    seen live
+    
+query:
+        /* Самые популярные исполнители 10 самых популярных тегов ластфм*/
+        /* most popular top 10 tags */
+        WITH top_10_tags AS (
+                SELECT 
+                tags_
+                FROM
+                (
+                    SELECT 
+                        tags_, 
+                        SUM(listeners_lastfm) AS cnt_listeners
+                    FROM
+                        (
+                        SELECT 
+                             
+                            table_1.listeners_lastfm,
+                            tags_
+                        FROM 
+                            (SELECT 
+                                split(tags_lastfm, "; ") AS tags_lastfm
+                                ,
+                                listeners_lastfm    
+                             FROM default.hue__tmp_artists
+                            ) table_1
+                        LATERAL VIEW 
+                            explode(tags_lastfm) exploded_table AS tags_
+                        ) tabled
+                    GROUP BY
+                        tags_
+                    ORDER BY 
+                        cnt_listeners DESC
+                    LIMIT 10
+                ) some_table
+
+        ),
+        /* artists that play at least in one of top 10 tags */
+    artists AS (
+        SELECT 
+            DISTINCT 
+            artist_x_tags.artist_mb
+        FROM
+            (
+            SELECT 
+                 
+                table_1.artist_mb,
+                tag
+            FROM 
+                (SELECT 
+                    split(tags_lastfm, "; ") AS tags_lastfm
+                    ,
+                    artist_mb   
+                 FROM default.hue__tmp_artists
+                ) table_1
+            LATERAL VIEW 
+                explode(tags_lastfm) exploded_table AS tag
+            ) artist_x_tags
+        WHERE 
+            tag IN
+            (
+            SELECT 
+                *
+            FROM top_10_tags
+            )
+
+    )
+    /* most popular in these artists */
+    SELECT 
+        artist_mb,
+        SUM(CAST(listeners_lastfm AS BIGINT)) AS cnt_listeners
+    FROM 
+        default.hue__tmp_artists
+    WHERE
+        artist_mb
+        in (SELECT * FROM artists)
+        AND 
+        listeners_lastfm IS NOT NULL
+    GROUP BY 
+        artist_mb
+    ORDER BY 
+        cnt_listeners DESC
+    LIMIT 10
+result:
+        artist_mb	cnt_listeners
+    1	Phoenix	28424886
+    2	Chris Brown	10499428
+    3	John Williams	8424451
+    4	Passenger	6499619
+    5	Bliss	6076500
+    6	Plan B	5507433
+    7	Coldplay	5381567
+    8	Jet	5262465
+    9	Radiohead	4732528
+    10	Red Hot Chili Peppers	4620835
+
+
+  
