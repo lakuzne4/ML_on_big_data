@@ -1,0 +1,22 @@
+окт. 30, 2021 11:51:23 PM com.github.fommil.netlib.LAPACK <clinit>
+WARNING: Failed to load implementation from: com.github.fommil.netlib.NativeSystemLAPACK
+окт. 30, 2021 11:51:23 PM com.github.fommil.netlib.LAPACK <clinit>
+WARNING: Failed to load implementation from: com.github.fommil.netlib.NativeRefLAPACK
+coefficients:
+253.92911973993162
+-271.896137827755
+358.1451133747466
+655.9550231352051
+24123.72877893863
+intercept:
+-13226.48486461949
+окт. 30, 2021 11:51:23 PM com.github.fommil.netlib.BLAS <clinit>
+WARNING: Failed to load implementation from: com.github.fommil.netlib.NativeSystemBLAS
+окт. 30, 2021 11:51:23 PM com.github.fommil.netlib.BLAS <clinit>
+WARNING: Failed to load implementation from: com.github.fommil.netlib.NativeRefBLAS
+R-squared on train data:
+0.7533264574614833
+R-squared on test data:
+0.7443594418740576
+Prediction written to file:
+D:\MADE_homeworks\big_data\for_hw3\resources\insurance_data_prediction.csv
